@@ -8,17 +8,20 @@ var config = {
   };
   firebase.initializeApp(config);
   var database = firebase.database();
-
+  var initiateTime;
 
 $("#add-train-btn").on("click", function(event) {
     event.preventDefault();
-  
+
+    initiateTime = moment().format("HH:mm");
+
     var trainName = $("#train-name-input").val().trim();
     var destination = $("#dest-input").val().trim();
     var frequency = $("#freq-input").val().trim();
 
     var newTrain = {
       name: trainName,
+      time: initiateTime, 
       destination: destination,
       rate: frequency,
       
@@ -42,10 +45,18 @@ $("#add-train-btn").on("click", function(event) {
     var trainName = childSnapshot.val().name;
     var destination = childSnapshot.val().destination;
     var frequency = childSnapshot.val().rate;
+    var nextStop = childSnapshot.val().timeCreated;
+    moment(nextStop,"HH:mm").add(frequency, "m");
+    
 
+    // moment.js magic
+    var currentTime = moment().format("HH:mm");
 
-  
+    var minLeft = moment(nextStop, "HH:mm").diff(moment(), "m");
+
     // Add each train's data into the table
     $("#train-table > tbody").append("<tr><td>" + trainName + "</td><td>" + destination + "</td><td>" +
-    destination + "</td><td>"+ frequency + "</td><td>" + frequency + "</td></tr>");
+    frequency + "</td><td>"+ nextStop + "</td><td>" + minLeft + "</td></tr>");
+
+
   });
